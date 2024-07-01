@@ -15,7 +15,7 @@ export default function Create({ onClick, newQuiz, User, AuxFunc }) {
         if (questionIndex >= answers.length) {
             setAnswers(prevAnswers => [...prevAnswers, ['', '', '', '', '']]);
         }
-    }, [questionIndex]);
+    }, [questionIndex, answers.length]);
 
     const handleQuestionChange = (event) => {
         const newQuestion = event.target.value;

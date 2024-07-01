@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { FiShare } from 'react-icons/fi';
@@ -8,7 +8,9 @@ const QuizCard = ({ onClickStart, onClickAnswers, onClickShare, Quiz, User }) =>
   return (
     <div className="bg-red-600 grid grid-rows-3 text-white p-6 rounded-lg w-full max-w-6xl my-4 mr-32 shadow-[4px_6px_10px_-2px_rgba(0,0,0,0.25)]">
       <h2 className="text-2xl">{Quiz?.title}</h2>
-      <ReactMarkdown remarkPlugins={[remarkGfm]} children={Quiz?.description} />
+      <ReactMarkdown remarkPlugins={[remarkGfm]}>
+        {Quiz?.description}
+      </ReactMarkdown>
       <div className="flex justify-between items-center">
         <div className="bg-red-800 -ml-7 bg-opacity-90 text-white p-2 rounded mt-auto w-auto min-w-56 max-w-64 mr-4 shadow-[4px_6px_10px_-2px_rgba(0,0,0,0.45)]">
           <p className="flex items-center">

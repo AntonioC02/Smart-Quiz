@@ -2,12 +2,11 @@ import React, { useState, useEffect } from 'react';
 import PopUp from './PopUp';
 import Button from './Button';
 
-
 function shuffleArray(array) {
     return array?.slice(1).sort()
 }
 
-export default function viewQuiz({ onClick, Quiz, username, finishAux }) {
+export default function ViewQuiz({ onClick, Quiz, username, finishAux }) {
     const [isOverlayVisible, setIsOverlayVisible] = useState(false);
     const [questionIndex, setQuestionIndex] = useState(0);
     const [selectedOption, setSelectedOption] = useState(null);
@@ -59,7 +58,6 @@ export default function viewQuiz({ onClick, Quiz, username, finishAux }) {
         saveAnswer();
     }, [selectedOption, answer]);
 
-    // Remove the saveAnswer call from the handleFinish function
     const handleFinish = async () => {
         if (questionIndex < (Quiz?.answers_matrix?.length || 0) - 1) {
             setQuestionIndex(prevIndex => prevIndex + 1);
@@ -134,9 +132,9 @@ export default function viewQuiz({ onClick, Quiz, username, finishAux }) {
 
             <div className="flex-grow"></div>
             <div className="grid grid-cols-3 grid-rows-1 items-end mb-8">
-                <Button disabled={questionIndex == 0} text="<" onClick={handlePrevious} />
-                <Button disabled={questionIndex == Quiz?.answers_matrix?.length - 1} text=">" onClick={handleNext} />
-                <Button disabled={questionIndex != Quiz?.answers_matrix?.length - 1} text="Finish" onClick={handleFinish} />
+                <Button disabled={questionIndex === 0} text="<" onClick={handlePrevious} />
+                <Button disabled={questionIndex === Quiz?.answers_matrix?.length - 1} text=">" onClick={handleNext} />
+                <Button disabled={questionIndex !== Quiz?.answers_matrix?.length - 1} text="Finish" onClick={handleFinish} />
             </div>
 
             {
@@ -144,7 +142,6 @@ export default function viewQuiz({ onClick, Quiz, username, finishAux }) {
                     <PopUp title="Quit quiz?" buttonText="quit" onClickClose={() => { setIsOverlayVisible(!isOverlayVisible) }} onClickButton={onClick} />
                 )
             }
-        </div >
+        </div>
     );
-
 }

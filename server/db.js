@@ -3,10 +3,10 @@ import pg from 'pg';
 const { Pool } = pg;
 
 const pool = new Pool({
-    user: 'postgres',
-    host: 'localhost',
-    database: 'postgres',
-    password: 'pwd',
+    user: 'postagres_owner',
+    host: 'ep-hidden-poetry-a2i3vdr0-pooler.eu-central-1.aws.neon.tech',
+    database: 'postagres',
+    password: '9nNrQSmlPI6i',
     port: 5432,
 });
 

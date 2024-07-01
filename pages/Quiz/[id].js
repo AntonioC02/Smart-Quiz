@@ -88,7 +88,7 @@ export default function Home() {
 
             {isViewAnswersOverlayVisible && (
                 <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
-                    <Answers onClick={() => { setusrAns(undefined); setusrScore(undefined); console.log(usrNfo); router.push("/"); }} Quiz={selectedQuiz} userAnswers={usrAns} userScore={usrScore} usernameC={usrNfo?.username} />
+                    <Answers onClick={() => {router.push("/"); }} Quiz={selectedQuiz} userAnswers={usrAns} userScore={usrScore} usernameC={usrNfo?.username} />
                 </div>
             )}
 

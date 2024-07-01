@@ -56,7 +56,7 @@ export default function ViewQuiz({ onClick, Quiz, username, finishAux }) {
 
     useEffect(() => {
         saveAnswer();
-    }, [selectedOption, answer, saveAnswer]);
+    }, [selectedOption, answer]);
 
     const handleFinish = async () => {
         if (questionIndex < (Quiz?.answers_matrix?.length || 0) - 1) {

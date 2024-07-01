@@ -1,11 +1,11 @@
-import Image from 'next/image';
 
-const Logo = ({className}) => {
+export default function Page() {
   return (
-    <div className="text-center">
-      <Image src="/Logo.svg" alt="logo" className={`${className} w-3/4`}/>
-    </div>
-  );
-};
-
-export default Logo;
+    <img
+      src="./Logo.svg"
+      width={500}
+      height={500}
+      alt="Picture of the author"
+    />
+  )
+}

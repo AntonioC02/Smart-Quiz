@@ -10,7 +10,6 @@ import SubmitAnswers from '../components/SubmitAnswers';
 import ViewAnswers from '../components/ViewAnswers';
 import View from '../components/viewQuiz';
 import Share from '../components/Share';
-import Button from '../components/Button';
 
 export default function Home() {
     const [isSubmitAnswersOverlayVisible, setisSubmitAnswersOverlayVisible] = useState(false);

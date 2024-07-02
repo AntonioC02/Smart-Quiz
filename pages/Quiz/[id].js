@@ -1,19 +1,21 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import Sidebar from '../../components/Sidebar';
+import LoginPage from '../../components/LoginPage';
 import Creator from '../../components/Creator';
 import Login from '../../components/Login';
 import Logo from '../../components/Logo';
 import Quiz from "../../models/Quiz";
 import Answers from '../../components/SubmitAnswers';
 import View from '../../components/viewQuiz';
-import Cookies from 'js-cookie';
 
 export default function Home() {
     const [isViewAnswersOverlayVisible, setisViewAnswersOverlayVisible] = useState(false);
     const [isViewQuizOverlayVisible, setIsViewQuizOverlayVisible] = useState(true);
+    const [isLoginOverlayVisible, setisLoginOverlayVisible] = useState(true);
     const [selectedQuiz, setselectedQuiz] = useState(new Quiz());
     const [usrNfo, setusrNfo] = useState(undefined);
+    const [update, setupdate] = useState(false);
     const [usrScore, setusrScore] = useState(undefined);
     const [login, setlogin] = useState(false);
     const [usrAns, setusrAns] = useState(undefined);
@@ -21,15 +23,50 @@ export default function Home() {
     const { id } = router.query
 
     useEffect(() => {
-        setlogin(usrNfo != undefined)
+        setlogin(usrNfo !== undefined)
     }, [usrNfo]);
 
+
     useEffect(() => {
-        let data = Cookies.get('user');
-        if (data !== undefined && data !== '') {
-            setusrNfo(JSON.parse(data));
-        }
-    }, []);
+        const fetchUserData = async () => {
+            const token = localStorage.getItem('token');
+            if (!token) return null;
+
+            try {
+                const response = await fetch('/api/user-stats', {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`,
+                    },
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to fetch user data');
+                }
+
+                const data = await response.json();
+                return data;
+            } catch (error) {
+                console.error('Error fetching user data:', error);
+                throw error; // Rethrow the error to handle it upstream
+            }
+        };
+
+        const loadUserData = async () => {
+            try {
+                const data = await fetchUserData();
+                if (data) {
+                    setusrNfo(data.user); // Assuming setusrNfo is your state setter
+                }
+            } catch (error) {
+                console.error('Error loading user data:', error);
+            }
+        };
+
+        loadUserData();
+    }, [update]);
+
 
     useEffect(() => {
         const fetchQuiz = async () => {
@@ -88,11 +125,25 @@ export default function Home() {
 
             {isViewAnswersOverlayVisible && (
                 <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
-                    <Answers onClick={() => {router.push("/"); }} Quiz={selectedQuiz} userAnswers={usrAns} userScore={usrScore} usernameC={usrNfo?.username} />
+                    <Answers onClick={() => { router.push("/"); }} Quiz={selectedQuiz} userAnswers={usrAns} userScore={usrScore} usernameC={usrNfo?.username} />
                 </div>
             )}
 
-
+            {(isLoginOverlayVisible && !login) && (
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
+                    <LoginPage guestmode={true} isLoggedIn={login}
+                        handleLogout={() => {
+                            setusrNfo(undefined);
+                            setisLoginOverlayVisible(!isLoginOverlayVisible);
+                            localStorage.removeItem('token');
+                        }}
+                        onClickClose={() => { setisLoginOverlayVisible(!isLoginOverlayVisible); }}
+                        handleLoginSuccess={() => {
+                            setisLoginOverlayVisible(!isLoginOverlayVisible);
+                            setupdate(!update)
+                        }} />
+                </div>
+            )}
         </div>
     );
 }

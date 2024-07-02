@@ -3,7 +3,7 @@ import PopUp from './PopUp';
 import User from "../models/User";
 import { useState } from 'react';
 
-export default function LoginPage({ onClickClose, handleLoginSuccess, handleLogout, isLoggedIn }) {
+export default function LoginPage({ onClickClose, handleLoginSuccess, handleLogout, isLoggedIn, guestmode = false }) {
     const [tmpusrNfo, settmpusrNfo] = useState(new User("", "", 0, 0, 0, 0));
     const [confirmPw, setconfirmPw] = useState("");
     const [Error, setError] = useState({ isError: false, message: "" });
@@ -145,6 +145,13 @@ export default function LoginPage({ onClickClose, handleLoginSuccess, handleLogo
                         <div className="flex justify-center">
                             <p onClick={() => setIsRegister(!isRegister)} className="text-white cursor-pointer">{(!isRegister) ? "Create a new Account" : "Back to Login"}</p>
                         </div>
+                        {guestmode ? (
+                            <div className="flex justify-center mt-4">
+                                <button onClick={onClickClose} className="bg-white text-red-600 py-2 px-4 max-h-10 mb-2 rounded">Continue As Guest</button>
+                            </div>
+                        ) : (
+                            <></>
+                        )}
                     </div>
                 )}
         </>

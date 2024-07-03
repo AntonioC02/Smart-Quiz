@@ -3,7 +3,12 @@ import PopUp from './PopUp';
 import Button from './Button';
 
 function shuffleArray(array) {
-    return array?.slice(1).sort()
+    if (!array || array.length < 5) {
+        throw new Error("wrong array.");
+    }
+
+    let sortedArray = array.slice(1).sort();
+    return [sortedArray[2], sortedArray[0], sortedArray[3], sortedArray[1]];
 }
 
 export default function ViewQuiz({ onClick, Quiz, username, finishAux }) {

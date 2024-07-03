@@ -57,13 +57,32 @@ export default function Create({ onClick, newQuiz, User, AuxFunc }) {
                 updateAnswers(questionIndex, '', '', '', '', '');
             }
             setQuestionIndex(prevIndex => prevIndex - 1);
+            setError({isError:false,message:"null"});
         }
     };
 
     const handleNext = () => {
         const [question, correctAnswer, answer1, answer2, answer3] = answers[questionIndex];
+
+        if (question === "") {
+            setError({ isError: true, message: "Empty Question" });
+            return;
+        }
+
+        if (correctAnswer === "") {
+            setError({ isError: true, message: "Empty Answer" });
+            return;
+        }
+
+        if (choiceM && ((answer1 === "" || answer2 === "" || answer3 === "")) || (new Set([correctAnswer, answer1, answer2, answer3])).size !== 4) {
+            setError({ isError: true, message: "MAnswers Incomplete" });
+            return;
+        }
+
+
         if (question !== "" && correctAnswer !== "" && (!choiceM || (answer1 !== "" && answer2 !== "" && answer3 !== ""))) {
             setQuestionIndex(prevIndex => prevIndex + 1);
+            setError({isError:false,message:"null"});
         }
     };
     const handleFinish = async () => {
@@ -80,7 +99,7 @@ export default function Create({ onClick, newQuiz, User, AuxFunc }) {
                 return;
             }
 
-            if (choiceM && (answer1 === "" || answer2 === "" || answer3 === "")) {
+            if (choiceM && ((answer1 === "" || answer2 === "" || answer3 === "")) || (new Set([correctAnswer, answer1, answer2, answer3])).size !== 4) {
                 setError({ isError: true, message: "MAnswers Incomplete" });
                 return;
             }
@@ -135,7 +154,7 @@ export default function Create({ onClick, newQuiz, User, AuxFunc }) {
                 case "Empty Answer":
                     return "Answer is empty";
                 case "MAnswers Incomplete":
-                    return "All Answers must be Filled";
+                    return "All Answers must be Filled And Distinct";
                 default:
                     return "Error";
             }

@@ -5,6 +5,18 @@ export default function ViewAnswers({ onClick, Quiz }) {
   const [selectedUser, setSelectedUser] = useState(undefined);
   const [userList, setUserList] = useState([]);
 
+  const getScore = (answers, quiz) => {
+    let finalScore = 0;
+    answers.forEach((answer, index) => {
+      let ix = quiz.answers_matrix[index].slice(1).indexOf(answer)
+
+      if (ix < 0 && quiz.answers_matrix[index][2] == "") { ix = 1 }
+
+      if (ix == 0) finalScore++;
+    });
+    return finalScore
+  }
+
   const getUsersAndAnswers = async (quizId) => {
     try {
       const token = localStorage.getItem('token');
@@ -62,7 +74,7 @@ export default function ViewAnswers({ onClick, Quiz }) {
 
       {Quiz.max_errors > 0 && (selectedUser != undefined) && (
         <h2 className="text-xl mb-4">
-          Quiz {Quiz.answers_matrix.length - selectedUser?.user_answers?.length < Quiz.max_errors ? "Passed" : "Failed"} {Quiz.answers_matrix.length - selectedUser?.user_answers?.length}/{Quiz.max_errors} Errors.
+          Quiz {Quiz.answers_matrix.length - getScore(selectedUser?.user_answers , Quiz) <= Quiz.max_errors ? "Passed" : "Failed"} {Quiz.answers_matrix.length - getScore(selectedUser?.user_answers , Quiz)}/{Quiz.max_errors} Errors.
         </h2>
       )}
       {Quiz?.answers_matrix.map((question, index) => (

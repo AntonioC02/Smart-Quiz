@@ -43,7 +43,7 @@ export default function Answers({ onClick, Quiz, userAnswers, userScore, usernam
         </div>
         {userAnswers && Quiz.max_errors > 0 && (
           <h2 className="text-2xl mb-4">
-            Quiz {Quiz.answers_matrix.length - userScore < Quiz.max_errors ? "Passed" : "Failed"} {Quiz.answers_matrix.length - userScore}/{Quiz.max_errors} Errors.
+            Quiz {Quiz.answers_matrix.length - userScore <= Quiz.max_errors ? "Passed" : "Failed"} {Quiz.answers_matrix.length - userScore}/{Quiz.max_errors} Errors.
           </h2>
         )}
         {Quiz.answers_matrix?.map((question, index) => (

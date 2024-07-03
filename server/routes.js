@@ -152,9 +152,9 @@ router.put('/quiz/:id', express.json(), express.json(), async (req, res) => {
         }
 
         answers.forEach((answer, index) => {
-            let ix = quiz.answers_matrix[index].indexOf(answer)
-            ix--
-            if (ix < 0 && quiz.answers_matrix[index][2] == "") ix = 1;
+            let ix = quiz.answers_matrix[index].slice(1).indexOf(answer)
+
+            if (ix < 0 && quiz.answers_matrix[index][2] == "") {ix = 1}
             score.push([
                 ix == 0 ? 1 : 0,
                 ix == 1 ? 1 : 0,

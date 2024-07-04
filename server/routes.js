@@ -174,20 +174,10 @@ router.put('/quiz/:id', express.json(), async (req, res) => {
         const updatedUserAnswersMatrix = JSON.stringify(quiz.user_answers_matrix);
         await pool.query('UPDATE quizzes SET user_answers_matrix = $1, times_played = times_played + 1 WHERE id = $2', [updatedUserAnswersMatrix, quizId]);
         if (user_id) {
-
-
             const queryText = 'UPDATE users SET quiz_played = quiz_played + 1, correct_answers = correct_answers + $2 WHERE id = $1';
             const queryParams = [user_id, finalscore];
         
-            // Log the query and parameters
-            console.log('Executing query:', queryText);
-            console.log('With parameters:', queryParams);
             await pool.query(queryText, queryParams);     
-            
-            
-            
-
-            // await pool.query('UPDATE users SET quiz_played = quiz_played + 1, correct_answers = correct_answers + $2 WHERE id = $1', [finalscore, user_id]);
         }
         res.status(200).json({ message: 'Quiz updated successfully', finalScore: finalscore });
     } catch (err) {

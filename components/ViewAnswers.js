@@ -30,7 +30,6 @@ export default function ViewAnswers({ onClick, Quiz }) {
     const fetchData = async () => {
       const data = await getUsersAndAnswers(Quiz.id);
       setUserList(data);
-      console.log(data)
     };
     fetchData();
   }, [Quiz]);
@@ -55,7 +54,7 @@ export default function ViewAnswers({ onClick, Quiz }) {
           <option value="">All Users</option>
           {userList.map((user, i) => (
             <option key={i} value={user.id}>
-              {user.user_username} {user.id == "null" ? "(guest)" : ""}
+              {user.user_username} {user.user_id == null ? "(guest)" : ""}{console.log(user)}
             </option>
           ))}
         </select>

@@ -94,18 +94,8 @@ router.post('/submit-answers', express.json(), async (req, res) => {
     const answerSet2 = JSON.stringify(answerSet);
     try {
         const newUserQuizAnswer = new UserQuizAnswer(username, quizId, userid, answerSet2, score);
-        console.log(newUserQuizAnswer)
         const query = 'INSERT INTO user_quiz_answers (user_username, user_id, quiz_id, user_answers, score) VALUES ($1, $2, $3, $4, $5)';
         const values = [newUserQuizAnswer.username, newUserQuizAnswer.userId, newUserQuizAnswer.quizId, answerSet2, score];
-
-        // Combine the query and values for logging purposes
-        const queryWithValues = query.replace(/\$\d+/g, match => {
-            const index = parseInt(match.slice(1)) - 1;
-            return typeof values[index] === 'string' ? `'${values[index]}'` : values[index];
-        });
-
-        console.log('Query with values:', queryWithValues);
-
 
         const result = await pool.query(query, values);
         res.status(201).json({ message: 'User quiz answers submitted successfully' });
@@ -184,7 +174,20 @@ router.put('/quiz/:id', express.json(), async (req, res) => {
         const updatedUserAnswersMatrix = JSON.stringify(quiz.user_answers_matrix);
         await pool.query('UPDATE quizzes SET user_answers_matrix = $1, times_played = times_played + 1 WHERE id = $2', [updatedUserAnswersMatrix, quizId]);
         if (user_id) {
-            await pool.query('UPDATE users SET quiz_played = quiz_played + 1, correct_answers = correct_answers + $2 WHERE id = $1', [finalscore, user_id]);
+
+
+            const queryText = 'UPDATE users SET quiz_played = quiz_played + 1, correct_answers = correct_answers + $2 WHERE id = $1';
+            const queryParams = [user_id, finalscore];
+        
+            // Log the query and parameters
+            console.log('Executing query:', queryText);
+            console.log('With parameters:', queryParams);
+            await pool.query(queryText, queryParams);     
+            
+            
+            
+
+            // await pool.query('UPDATE users SET quiz_played = quiz_played + 1, correct_answers = correct_answers + $2 WHERE id = $1', [finalscore, user_id]);
         }
         res.status(200).json({ message: 'Quiz updated successfully', finalScore: finalscore });
     } catch (err) {

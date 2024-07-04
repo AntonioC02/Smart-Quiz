@@ -20,7 +20,7 @@ const QuizCard = ({ onClickStart, onClickAnswers, onClickShare, Quiz, User }) =>
         </div>
 
         <div className="flex space-x-2 items-center">
-          {(Quiz?.username === User?.username) &&
+          {(Quiz?.user_id === User?.id) &&
             <button onClick={onClickAnswers} className="bg-white mt-auto text-red-600 py-2 px-4 w-36 rounded">
               View Answers
             </button>

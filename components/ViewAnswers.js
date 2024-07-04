@@ -5,17 +5,6 @@ export default function ViewAnswers({ onClick, Quiz }) {
   const [selectedUser, setSelectedUser] = useState(undefined);
   const [userList, setUserList] = useState([]);
 
-  const getScore = (answers, quiz) => {
-    let finalScore = 0;
-    answers.forEach((answer, index) => {
-      let ix = quiz.answers_matrix[index].slice(1).indexOf(answer)
-
-      if (ix < 0 && quiz.answers_matrix[index][2] == "") { ix = 1 }
-
-      if (ix == 0) finalScore++;
-    });
-    return finalScore
-  }
 
   const getUsersAndAnswers = async (quizId) => {
     try {
@@ -41,6 +30,7 @@ export default function ViewAnswers({ onClick, Quiz }) {
     const fetchData = async () => {
       const data = await getUsersAndAnswers(Quiz.id);
       setUserList(data);
+      console.log(data)
     };
     fetchData();
   }, [Quiz]);
@@ -65,7 +55,7 @@ export default function ViewAnswers({ onClick, Quiz }) {
           <option value="">All Users</option>
           {userList.map((user, i) => (
             <option key={i} value={user.id}>
-              {user.user_username}
+              {user.user_username} {user.id == "null" ? "(guest)" : ""}
             </option>
           ))}
         </select>
@@ -74,7 +64,7 @@ export default function ViewAnswers({ onClick, Quiz }) {
 
       {Quiz.max_errors > 0 && (selectedUser != undefined) && (
         <h2 className="text-xl mb-4">
-          Quiz {Quiz.answers_matrix.length - getScore(selectedUser?.user_answers , Quiz) <= Quiz.max_errors ? "Passed" : "Failed"} {Quiz.answers_matrix.length - getScore(selectedUser?.user_answers , Quiz)}/{Quiz.max_errors} Errors.
+          Quiz {Quiz.answers_matrix.length - selectedUser.score <= Quiz.max_errors ? "Passed" : "Failed"} {Quiz.answers_matrix.length - selectedUser.score}/{Quiz.max_errors} Errors.
         </h2>
       )}
       {Quiz?.answers_matrix.map((question, index) => (
@@ -90,9 +80,8 @@ export default function ViewAnswers({ onClick, Quiz }) {
               <h2 key={i} className="text-l pb-2">
                 {answer}
                 {(selectedUser == undefined) && <span className="ml-2 text-sm">{percentage.toFixed(2)}%</span>}
-
                 {(selectedUser != undefined) && <span className="ml-2 text-sm">
-                  {(i === 0 && (question[2] !== "" || (question[2] === "" && answer === selectedUser?.user_answers?.[index]))) ? "V" :
+                  {(i === 0 && (question[2] !== "" || (question[2] === "" && answer === selectedUser?.user_answers?.[index])) && selectedUser?.user_answers?.[index] != null) ? "V" :
                     (answer === selectedUser?.user_answers?.[index] || question[2] === "" || (selectedUser?.user_answers?.[index] === null && i === 0)) ? "X" : ""}
                 </span>}
 

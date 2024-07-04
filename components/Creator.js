@@ -20,7 +20,6 @@ const Creator = ({ onClick, isLoggedIn, usrNfo, AuxFunc }) => {
 
   const handleClickCreate = () => {
     if (newQuiz.title === "") {
-      console.log(newQuiz)
       setError({ isError: true, message: "Empty Title" });
       return;
     }

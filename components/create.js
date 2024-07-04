@@ -57,7 +57,7 @@ export default function Create({ onClick, newQuiz, User, AuxFunc }) {
                 updateAnswers(questionIndex, '', '', '', '', '');
             }
             setQuestionIndex(prevIndex => prevIndex - 1);
-            setError({isError:false,message:"null"});
+            setError({ isError: false, message: "null" });
         }
     };
 
@@ -74,7 +74,7 @@ export default function Create({ onClick, newQuiz, User, AuxFunc }) {
             return;
         }
 
-        if (choiceM && ((answer1 === "" || answer2 === "" || answer3 === "")) || (new Set([correctAnswer, answer1, answer2, answer3])).size !== 4) {
+        if (choiceM && ((answer1 === "" || answer2 === "" || answer3 === "") || (new Set([correctAnswer, answer1, answer2, answer3])).size !== 4)) {
             setError({ isError: true, message: "MAnswers Incomplete" });
             return;
         }
@@ -82,24 +82,26 @@ export default function Create({ onClick, newQuiz, User, AuxFunc }) {
 
         if (question !== "" && correctAnswer !== "" && (!choiceM || (answer1 !== "" && answer2 !== "" && answer3 !== ""))) {
             setQuestionIndex(prevIndex => prevIndex + 1);
-            setError({isError:false,message:"null"});
+            setError({ isError: false, message: "null" });
         }
     };
     const handleFinish = async () => {
         try {
             const [question, correctAnswer, answer1, answer2, answer3] = answers[questionIndex];
 
+
             if (question === "") {
                 setError({ isError: true, message: "Empty Question" });
                 return;
             }
+
 
             if (correctAnswer === "") {
                 setError({ isError: true, message: "Empty Answer" });
                 return;
             }
 
-            if (choiceM && ((answer1 === "" || answer2 === "" || answer3 === "")) || (new Set([correctAnswer, answer1, answer2, answer3])).size !== 4) {
+            if (choiceM && ((answer1 === "" || answer2 === "" || answer3 === "") || (new Set([correctAnswer, answer1, answer2, answer3])).size !== 4)) {
                 setError({ isError: true, message: "MAnswers Incomplete" });
                 return;
             }
@@ -109,12 +111,13 @@ export default function Create({ onClick, newQuiz, User, AuxFunc }) {
                 return question !== "" && correctAnswer !== "" && (!choiceM || (answer1 !== "" && answer2 !== "" && answer3 !== ""));
             });
 
+
             let tempuseranswermatrix = [];
             for (let i = 0; i < filteredAnswers.length; i++) {
                 tempuseranswermatrix.push([0, 0, 0, 0]);
             }
 
-            const finishedQuiz = new Quiz(null, newQuiz.title, newQuiz.description, newQuiz.maxErrors, filteredAnswers, 0, tempuseranswermatrix, User.username);
+            const finishedQuiz = new Quiz(null, newQuiz.title, newQuiz.description, newQuiz.maxErrors, filteredAnswers, 0, tempuseranswermatrix, User.id);
             const token = localStorage.getItem('token');
             const response = await fetch('/api/quiz', {
                 method: 'POST',

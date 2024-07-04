@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import Button from './Button';
 import PopUp from './PopUp';
 
-export default function Answers({ onClick, Quiz, userAnswers, userScore, usernameC }) {
+export default function Answers({ onClick, Quiz, userAnswers, userScore, User }) {
   const [TmpName, setTmpName] = useState("anonymous");
   const [isOverlayVisible, setIsOverlayVisible] = useState(false);
   const [PopUpText, setPopUpText] = useState("anonymous");
@@ -10,8 +10,8 @@ export default function Answers({ onClick, Quiz, userAnswers, userScore, usernam
   const showAnswers = userAnswers != undefined;
 
   const onSubmit = async () => {
-    const username = usernameC || TmpName;
-
+    const username = (User != undefined) ? User.username : TmpName;
+    const id = (User != undefined) ? User.id : undefined;
     try {
       const token = localStorage.getItem('token');
       const response = await fetch('/api/submit-answers', {
@@ -21,9 +21,11 @@ export default function Answers({ onClick, Quiz, userAnswers, userScore, usernam
           'Authorization': `Bearer ${token}`,
         },
         body: JSON.stringify({
-          username,
+          userid: id,
+          username: username,
           quizId: Quiz.id,
           answerSet: userAnswers,
+          score: userScore
         }),
       });
 
@@ -52,15 +54,13 @@ export default function Answers({ onClick, Quiz, userAnswers, userScore, usernam
             {question.slice(1).map((answer, i) => {
               if (!answer) return null;
 
-              const isCorrect = i === 0 && (question[2] || (question[2] === "" && answer === userAnswers[index]));
-              const isUserAnswer = answer === userAnswers[index] || question[2] === "" || (userAnswers[index] == null && i === 0);
-
               return (
                 <h2 key={i} className="text-l pb-2">
                   {answer}
                   {showAnswers && (
                     <span className="ml-2 text-sm">
-                      {isCorrect ? "V" : isUserAnswer ? "X" : ""}
+                      {(i === 0 && (question[2] !== "" || (question[2] === "" && answer === userAnswers[index])) && userAnswers[index] != null) ? "✓" :
+                        (answer === userAnswers[index] || question[2] === "" || (userAnswers[index] === null && i === 0)) ? "X" : ""}
                     </span>
                   )}
                 </h2>
@@ -70,13 +70,11 @@ export default function Answers({ onClick, Quiz, userAnswers, userScore, usernam
         ))}
       </div>
       <div className="mt-4">
-        {usernameC === undefined && userAnswers && (
+        {User === undefined && userAnswers && (
           <div className="grid grid-rows-2 mb-4">
-            <label htmlFor="usernameC" className="text-l pb-2">Guest Username:</label>
+            <label className="text-l pb-2">Guest Username:</label>
             <input
               type="text"
-              id="usernameC"
-              name="usernameC"
               onChange={(event) => setTmpName(event.target.value)}
               defaultValue="anonymous"
               className="bg-white text-black p-2 rounded-lg w-1/4"

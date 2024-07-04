@@ -49,7 +49,6 @@ export default function Home() {
             const data = await response.json();
             return data;
         } catch (error) {
-            console.error('Error fetching user data:', error);
             throw error; // Rethrow the error to handle it upstream
         }
     };
@@ -122,7 +121,7 @@ export default function Home() {
                             </div>
                         </div>
                         <div className="w-00 pl-6">
-                            <Creator isLoggedIn={login} onClick={() => { }} usrNfo={usrNfo} AuxFunc={() => { setusrNfo({ ...usrNfo, quizCreated: usrNfo.quizCreated + 1 });  setupdate(!update)}} />
+                            <Creator isLoggedIn={login} onClick={() => { }} usrNfo={usrNfo} AuxFunc={() => { setusrNfo({ ...usrNfo, quizCreated: usrNfo.quizCreated + 1 }); setupdate(!update) }} />
                         </div>
                     </div>
                 </main>
@@ -130,19 +129,19 @@ export default function Home() {
 
             {isViewQuizOverlayVisible && (
                 <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
-                    <View username={usrNfo?.username} onClick={() => { setIsViewQuizOverlayVisible(!isViewQuizOverlayVisible);  setupdate(!update)}} Quiz={selectedQuiz} finishAux={(answers, score) => { setusrScore(score); if (usrNfo != undefined) { setusrNfo({ ...usrNfo, quizPlayed: usrNfo.quizPlayed + 1, correctAnswers: usrNfo.correctAnswers + score }); } setusrAns(answers); setIsViewQuizOverlayVisible(!isViewQuizOverlayVisible); setisSubmitAnswersOverlayVisible(!isSubmitAnswersOverlayVisible);  setupdate(!update)}} />
+                    <View User={usrNfo} onClick={() => { setIsViewQuizOverlayVisible(!isViewQuizOverlayVisible); setupdate(!update) }} Quiz={selectedQuiz} finishAux={(answers, score) => { setusrScore(score); if (usrNfo != undefined) { setusrNfo({ ...usrNfo, quizPlayed: usrNfo.quizPlayed + 1, correctAnswers: usrNfo.correctAnswers + score }); } setusrAns(answers); setIsViewQuizOverlayVisible(!isViewQuizOverlayVisible); setisSubmitAnswersOverlayVisible(!isSubmitAnswersOverlayVisible); setupdate(!update) }} />
                 </div>
             )}
 
             {isSubmitAnswersOverlayVisible && (
                 <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
-                    <SubmitAnswers onClick={() => { setisSubmitAnswersOverlayVisible(!isSubmitAnswersOverlayVisible); setusrAns(undefined); setusrScore(undefined);  setupdate(!update)}} Quiz={selectedQuiz} userAnswers={usrAns} userScore={usrScore} usernameC={usrNfo?.username} />
+                    <SubmitAnswers onClick={() => { setisSubmitAnswersOverlayVisible(!isSubmitAnswersOverlayVisible); setusrAns(undefined); setusrScore(undefined); setupdate(!update) }} Quiz={selectedQuiz} userAnswers={usrAns} userScore={usrScore} User={usrNfo} />
                 </div>
             )}
 
             {isViewAnswersOverlayVisible && (
                 <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
-                    <ViewAnswers onClick={() => { setisViewAnswersOverlayVisible(!isViewAnswersOverlayVisible); setusrAns(undefined); setusrScore(undefined);  setupdate(!update) }} Quiz={selectedQuiz} userAnswers={usrAns} userScore={usrScore} usernameC={usrNfo?.username} />
+                    <ViewAnswers onClick={() => { setisViewAnswersOverlayVisible(!isViewAnswersOverlayVisible); setusrAns(undefined); setusrScore(undefined); setupdate(!update) }} Quiz={selectedQuiz} userAnswers={usrAns} userScore={usrScore} usernameC={usrNfo?.username} />
                 </div>
             )}
 

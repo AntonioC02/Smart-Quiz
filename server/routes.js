@@ -38,7 +38,7 @@ router.post('/login', express.json(), async (req, res) => {
             return res.status(401).json({ error: 'Invalid username or password' });
         }
 
-        const token = jwt.sign({ username: user.username }, jwtSecret, { expiresIn: '1h' });
+        const token = jwt.sign({ user_id: user.id }, jwtSecret, { expiresIn: '1h' });
 
         res.json({ token });
     } catch (err) {
@@ -59,7 +59,7 @@ router.post('/register', express.json(), async (req, res) => {
         }
 
         const hashedPassword = await bcrypt.hash(password, saltRounds);
-        const newUser = new User(username, hashedPassword, 0, 0, 0, 0);
+        const newUser = new User(-1, username, hashedPassword, 0, 0, 0, 0);
         const query = 'INSERT INTO users (username, password, quiz_played, correct_answers, quiz_created, played_own_quiz) VALUES ($1, $2, $3, $4, $5, $6)';
         const values = [newUser.username, newUser.password, newUser.quizPlayed, newUser.correctAnswers, newUser.quizCreated, newUser.playedOwnQuiz];
 
@@ -89,13 +89,23 @@ router.get('/quizzes', express.json(), async (req, res) => {
 });
 
 
-router.post('/submit-answers', express.json(), express.json(), async (req, res) => {
-    const { username, quizId, answerSet } = req.body;
+router.post('/submit-answers', express.json(), async (req, res) => {
+    const { userid, username, quizId, answerSet , score} = req.body;
     const answerSet2 = JSON.stringify(answerSet);
     try {
-        const newUserQuizAnswer = new UserQuizAnswer(username, quizId, answerSet2);
-        const query = 'INSERT INTO user_quiz_answers (user_username, quiz_id, user_answers) VALUES ($1, $2, $3)';
-        const values = [newUserQuizAnswer.username, newUserQuizAnswer.quizId, answerSet2];
+        const newUserQuizAnswer = new UserQuizAnswer(username, quizId, userid, answerSet2, score);
+        console.log(newUserQuizAnswer)
+        const query = 'INSERT INTO user_quiz_answers (user_username, user_id, quiz_id, user_answers, score) VALUES ($1, $2, $3, $4, $5)';
+        const values = [newUserQuizAnswer.username, newUserQuizAnswer.userId, newUserQuizAnswer.quizId, answerSet2, score];
+
+        // Combine the query and values for logging purposes
+        const queryWithValues = query.replace(/\$\d+/g, match => {
+            const index = parseInt(match.slice(1)) - 1;
+            return typeof values[index] === 'string' ? `'${values[index]}'` : values[index];
+        });
+
+        console.log('Query with values:', queryWithValues);
+
 
         const result = await pool.query(query, values);
         res.status(201).json({ message: 'User quiz answers submitted successfully' });
@@ -127,7 +137,7 @@ router.get('/submit-answers/:quizId', express.json(), async (req, res) => {
 
     try {
         const result = await pool.query(
-            'SELECT id, user_username, user_answers FROM user_quiz_answers WHERE quiz_id = $1',
+            'SELECT id, user_id, user_username, user_answers, score FROM user_quiz_answers WHERE quiz_id = $1',
             [quizId]
         );
 
@@ -138,9 +148,10 @@ router.get('/submit-answers/:quizId', express.json(), async (req, res) => {
     }
 });
 
-router.put('/quiz/:id', express.json(), express.json(), async (req, res) => {
+router.put('/quiz/:id', express.json(), async (req, res) => {
     const quizId = req.params.id;
-    const { answers, username } = req.body;
+    const { answers, user_id } = req.body;
+
     let score = []
 
     try {
@@ -154,7 +165,7 @@ router.put('/quiz/:id', express.json(), express.json(), async (req, res) => {
         answers.forEach((answer, index) => {
             let ix = quiz.answers_matrix[index].slice(1).indexOf(answer)
 
-            if (ix < 0 && quiz.answers_matrix[index][2] == "") {ix = 1}
+            if (ix < 0 && quiz.answers_matrix[index][2] == "") { ix = 1 }
             score.push([
                 ix == 0 ? 1 : 0,
                 ix == 1 ? 1 : 0,
@@ -172,8 +183,8 @@ router.put('/quiz/:id', express.json(), express.json(), async (req, res) => {
 
         const updatedUserAnswersMatrix = JSON.stringify(quiz.user_answers_matrix);
         await pool.query('UPDATE quizzes SET user_answers_matrix = $1, times_played = times_played + 1 WHERE id = $2', [updatedUserAnswersMatrix, quizId]);
-        if (username) {
-            await pool.query('UPDATE users SET quiz_played = quiz_played + 1, correct_answers = correct_answers + $2 WHERE username = $1', [username, finalscore]);
+        if (user_id) {
+            await pool.query('UPDATE users SET quiz_played = quiz_played + 1, correct_answers = correct_answers + $2 WHERE id = $1', [finalscore, user_id]);
         }
         res.status(200).json({ message: 'Quiz updated successfully', finalScore: finalscore });
     } catch (err) {
@@ -183,10 +194,10 @@ router.put('/quiz/:id', express.json(), express.json(), async (req, res) => {
 });
 
 router.get('/user-stats', authenticateToken, async (req, res) => {
-    const { username } = req.user;
+    const { user_id } = req.user;
 
     try {
-        const userResult = await pool.query('SELECT  username, quiz_played, correct_answers, quiz_created, played_own_quiz  FROM users WHERE username = $1', [username]);
+        const userResult = await pool.query('SELECT  id, username, quiz_played, correct_answers, quiz_created, played_own_quiz  FROM users WHERE id = $1', [user_id]);
 
         if (userResult.rows.length === 0) {
             return res.status(401).json({ error: 'Invalid username or password' });
@@ -194,14 +205,14 @@ router.get('/user-stats', authenticateToken, async (req, res) => {
 
         const user = userResult.rows[0];
 
-        const quizzesResult = await pool.query('SELECT SUM(times_played) AS played_own_quiz FROM quizzes WHERE username = $1', [username]);
+        const quizzesResult = await pool.query('SELECT SUM(times_played) AS played_own_quiz FROM quizzes WHERE user_id = $1', [user_id]);
         const playedOwnQuiz = quizzesResult.rows[0].played_own_quiz || 0;
 
-        await pool.query('UPDATE users SET played_own_quiz = $1 WHERE username = $2', [playedOwnQuiz, username]);
+        await pool.query('UPDATE users SET played_own_quiz = $1 WHERE id = $2', [playedOwnQuiz, user_id]);
 
         user.played_own_quiz = playedOwnQuiz;
 
-        const userObj = new User(user.username, "", user.quiz_played, user.correct_answers, user.quiz_created, user.played_own_quiz)
+        const userObj = new User(user.id, user.username, "", user.quiz_played, user.correct_answers, user.quiz_created, user.played_own_quiz)
         res.json({ user: userObj });
     } catch (err) {
         console.error(err);
@@ -212,18 +223,20 @@ router.get('/user-stats', authenticateToken, async (req, res) => {
 
 
 router.post('/quiz', authenticateToken, express.json(), async (req, res) => {
-    const { title, description, max_errors, answersMatrix, user_answers_matrix, username } = req.body;
+    const { title, description, max_errors, answersMatrix, user_answers_matrix } = req.body;
+    const { user_id } = req.user;
+
     const answers = JSON.stringify(answersMatrix);
     const userAnswers = JSON.stringify(user_answers_matrix);
     const zero = 0;
 
     try {
-        const query = 'INSERT INTO quizzes (title, description, max_errors, answers_matrix, times_played, user_answers_matrix, username) VALUES ($1, $2, $3, $4 ,$5, $6, $7)';
-        const values = [title, description, max_errors, answers, zero, userAnswers, username];
+        const query = 'INSERT INTO quizzes (title, description, max_errors, answers_matrix, times_played, user_answers_matrix, user_id) VALUES ($1, $2, $3, $4 ,$5, $6, $7)';
+        const values = [title, description, max_errors, answers, zero, userAnswers, user_id];
 
         const result = await pool.query(query, values);
 
-        await pool.query('UPDATE users SET quiz_created = quiz_created + 1 WHERE username = $1', [username]);
+        await pool.query('UPDATE users SET quiz_created = quiz_created + 1 WHERE id = $1', [user_id]);
 
         res.status(201).json({ message: 'Quiz created successfully' });
     } catch (err) {

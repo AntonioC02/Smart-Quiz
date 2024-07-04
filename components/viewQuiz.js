@@ -3,15 +3,15 @@ import PopUp from './PopUp';
 import Button from './Button';
 
 function shuffleArray(array) {
-    if (!array || array.length < 5) {
+    if (array?.length < 5) {
         throw new Error("wrong array.");
     }
 
-    let sortedArray = array.slice(1).sort();
-    return [sortedArray[2], sortedArray[0], sortedArray[3], sortedArray[1]];
+    let sortedArray = array?.slice(1).sort();
+    return [sortedArray?.[2], sortedArray?.[0], sortedArray?.[3], sortedArray?.[1]];
 }
 
-export default function ViewQuiz({ onClick, Quiz, username, finishAux }) {
+export default function ViewQuiz({ onClick, Quiz, User, finishAux }) {
     const [isOverlayVisible, setIsOverlayVisible] = useState(false);
     const [questionIndex, setQuestionIndex] = useState(0);
     const [selectedOption, setSelectedOption] = useState(null);
@@ -77,7 +77,7 @@ export default function ViewQuiz({ onClick, Quiz, username, finishAux }) {
                         'Content-Type': 'application/json',
                         'Authorization': `Bearer ${token}`,
                     },
-                    body: JSON.stringify({ answers: confirmedAnswers, username: username }),
+                    body: JSON.stringify({ answers: confirmedAnswers, username: User?.username, user_id: User?.id }),
                 });
 
                 if (!response.ok) {
